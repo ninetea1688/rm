@@ -1,0 +1,139 @@
+<?php
+
+use yii\helpers\Html;
+use kartik\grid\GridView;
+use kartik\export\ExportMenu;
+use app\models\Profile;
+use app\models\Level;
+use app\models\Team;
+        $session = Yii::$app->session;
+        $name = $session['fullname'];
+        $us=Yii::$app->user->identity->id;
+        $g= Profile::findOne(['user_id'=>$us]);
+        $team=  Team::findOne(['team_id'=>$g->team_id]);
+        $l=$session['level'];
+        $ln=  Level::findOne(['level_id'=>$l]);
+
+?>
+<div class="row">
+<div class="col-md-12">
+    <h3><div class="label label-info">สรุปการรายงานความเสี่ยงของ <?php echo $name;?></div> &nbsp<div class="label label-info"> ทีมคล่อมสายงาน <?php echo $team->team_name;?> </div> </h3>
+    <h5><div class="label label-warning">เข้าใช้งานนฐานะ <?php echo $ln->level_name;?></div></h5>
+   
+</div>
+</div>
+<div class='well'>
+    <form method="POST" class="form-inline">
+        <div class="form-group">
+        ระหว่าง:
+        <?php
+        echo yii\jui\DatePicker::widget([
+            'name' => 'date1',
+            'value' => $date1,
+            'language' => 'th',
+            'dateFormat' => 'yyyy-MM-dd',
+            'clientOptions' => [
+                'changeMonth' => true,
+                'changeYear' => true,
+            ],
+        ]);
+        ?>
+        ถึง:
+        <?php
+        echo yii\jui\DatePicker::widget([
+            'name' => 'date2',
+            'value' => $date2,
+            'language' => 'th',
+            'dateFormat' => 'yyyy-MM-dd',
+            'clientOptions' => [
+                'changeMonth' => true,
+                'changeYear' => true,
+            ]
+        ]);
+        ?>
+        </div>
+            <?php
+            //$session = Yii::$app->session;
+        $u=Yii::$app->user->identity->id;
+        if ($session['level'] == 1) {
+echo yii\helpers\Html::hiddenInput('user', $value=$u);
+            }else {
+            //$d = $session['dep'];
+        $list = yii\helpers\ArrayHelper::map(Profile::find()->where(['team_id' => $g->team_id])->all(), 'user_id', 'name');
+        
+         
+        echo yii\helpers\Html::dropDownList('user', $user, $list, [
+                    'prompt' => 'รายชื่อบุคลในทีม',
+                    'class' => 'form-control',
+                    
+                    
+        ]);}
+                ?>
+        
+        <button class='btn btn-danger'>ประมวลผล</button>
+    </form>
+</div>
+<?php
+if (isset($dataProvider))
+    echo \kartik\grid\GridView::widget([
+        'dataProvider' => $dataProvider,
+        'formatter' => ['class' => 'yii\i18n\Formatter','nullDisplay' => '-'],
+        'responsive' => TRUE,
+        //'showPageSummary' => true,
+        'hover' => true,
+        'floatHeader' => true,
+        'panel' => [
+            'heading'=>'<h3 class="panel-title"><i class="glyphicon glyphicon-th-list"></i></h3>',
+            'before' => '',
+            'type' => \kartik\grid\GridView::TYPE_SUCCESS,
+            
+        ],
+        'columns' => [
+            [
+            'attribute' => 'date_risk',
+            'header' => 'วันที่เกิดความเสี่ยง'
+        ],
+            [
+            'attribute' => 'pro_risk_name',
+            'header' => 'โปรแกรมความเสี่ยง'
+        ],
+            [
+            'attribute' => 'pro_risk_detail_name',
+            'header' => 'หมวดย่อย'
+        ],
+            [
+            'attribute' => 'pro_risk_sub_detail_name',
+            'header' => 'รายละเอียดหมวดย่อย'
+        ], 
+            [
+            'attribute' => 'detail_prob',
+            'header' => 'รายละเอียดความเสี่ยง'
+        ],
+             [
+            'attribute' => 'dep_of_risk',
+            'header' => 'แผนกที่เกิดความเสี่ยง'
+        ],
+             [
+            'attribute' => 'method',
+            'header' => 'วิธีการแก้ปัญหา'
+        ],
+             [
+            'attribute' => 'follow_name',
+            'header' => 'สถานะ'
+        ],
+             [
+            'attribute' => 'name_report',
+            'header' => 'ผู้รายงานความเสี่ยง'
+        ],
+               [
+            'attribute' => 'name_edit',
+            'header' => 'ผู้แก้ไขความเสี่ยง'
+        ],
+           
+        ],
+    ]);
+?>
+
+
+
+
